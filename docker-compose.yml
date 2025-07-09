@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # Servicio principal de desarrollo React + Capacitor
+  diabetes-app:
+    build: .
+    container_name: diabetes-control-dev
+    ports:
+      - "3000:3000"   # React development server
+      - "8100:8100"   # Capacitor live reload
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - gradle-cache:/root/.gradle
+      - android-sdk-cache:/opt/android-sdk
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - REACT_APP_FIREBASE_API_KEY=${REACT_APP_FIREBASE_API_KEY:-demo-api-key}
+      - REACT_APP_FIREBASE_AUTH_DOMAIN=${REACT_APP_FIREBASE_AUTH_DOMAIN:-demo-project.firebaseapp.com}
+      - REACT_APP_FIREBASE_PROJECT_ID=${REACT_APP_FIREBASE_PROJECT_ID:-demo-project}
+    stdin_open: true
+    tty: true
+    working_dir: /app
+    command: npm start
+
+  # Servicio para construir APK
+  android-builder:
+    build: .
+    container_name: diabetes-android-builder
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - gradle-cache:/root/.gradle
+      - android-sdk-cache:/opt/android-sdk
+    working_dir: /app
+    profiles:
+      - build
+    command: |
+      sh -c "
+        npm run build &&
+        npx cap copy android &&
+        cd android &&
+        ./gradlew assembleDebug
+      "
+
+volumes:
+  gradle-cache:
+  android-sdk-cache:

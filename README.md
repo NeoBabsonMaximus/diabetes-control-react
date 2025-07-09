@@ -356,3 +356,4 @@ La aplicación está diseñada para ser:
 ---
 
 Desarrollado con ❤️ para la comunidad diabética, priorizando la usabilidad, privacidad y análisis científico de los datos de salud.
+# diabetes-control-react

@@ -1,23 +1,76 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, addDoc, collection, query, onSnapshot, serverTimestamp } from 'firebase/firestore';
+import { 
+    getAuth, 
+    signInAnonymously, 
+    onAuthStateChanged, 
+    signInWithCustomToken,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    updateProfile,
+    sendPasswordResetEmail
+} from 'firebase/auth';
+import { getFirestore, doc, getDoc, setDoc, addDoc, collection, query, onSnapshot, serverTimestamp, orderBy, where } from 'firebase/firestore';
+import { getAnalytics } from 'firebase/analytics';
 
-// Configuración de Firebase - Usa variables de entorno o valores por defecto para desarrollo
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "demo-api-key",
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "demo-project.firebaseapp.com",
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "demo-project",
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "demo-project.appspot.com",
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "123456789",
-  appId: process.env.REACT_APP_FIREBASE_APP_ID || "demo-app-id"
+  apiKey: "AIzaSyCqGYSW_FXDSG_WylKkCft3kjVRjlNk7Zc",
+  authDomain: "diabetescontrol-2194b.firebaseapp.com",
+  projectId: "diabetescontrol-2194b",
+  storageBucket: "diabetescontrol-2194b.firebasestorage.app",
+  messagingSenderId: "989244893206",
+  appId: "1:989244893206:web:e3f11d51da90e7ff22ed37",
+  measurementId: "G-PQ9LVQWHQ6"
 };
 
-export const appId = process.env.REACT_APP_ID || 'diabetes-control-app';
-export const initialAuthToken = process.env.REACT_APP_INITIAL_AUTH_TOKEN || null;
+export const appId = 'diabetes-control-app';
+export const initialAuthToken = null;
 
+// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const analytics = getAnalytics(app);
+
+// Funciones de autenticación
+export const signUp = async (email, password, name) => {
+    try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(userCredential.user, { displayName: name });
+        return { user: userCredential.user, error: null };
+    } catch (error) {
+        return { user: null, error: error.message };
+    }
+};
+
+export const signInWithEmail = async (email, password) => {
+    try {
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        return { user: userCredential.user, error: null };
+    } catch (error) {
+        return { user: null, error: error.message };
+    }
+};
+
+export const logOut = async () => {
+    try {
+        await signOut(auth);
+        return { error: null };
+    } catch (error) {
+        return { error: error.message };
+    }
+};
+
+export const resetPassword = async (email) => {
+    try {
+        await sendPasswordResetEmail(auth, email);
+        return { error: null };
+    } catch (error) {
+        return { error: error.message };
+    }
+};
 
 export const signIn = async () => {
     try {
@@ -31,4 +84,21 @@ export const signIn = async () => {
     }
 };
 
-export { onAuthStateChanged, doc, getDoc, setDoc, addDoc, collection, query, onSnapshot, serverTimestamp };
+export { 
+    onAuthStateChanged, 
+    doc, 
+    getDoc, 
+    setDoc, 
+    addDoc, 
+    collection, 
+    query, 
+    onSnapshot, 
+    serverTimestamp, 
+    orderBy, 
+    where,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    updateProfile,
+    sendPasswordResetEmail
+};

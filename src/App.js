@@ -3,11 +3,12 @@ import { Spinner } from './components/Spinner';
 import { OnboardingScreen } from './components/OnboardingScreen';
 import { Dashboard } from './views/Dashboard';
 import { RecordModal } from './components/RecordModal';
-// Importar hooks demo en lugar de Firebase
-import { useAuth, useProfile, useRecords, useMeals } from './hooks/useDemoData';
+import { AuthScreen } from './components/AuthScreen';
+// Importar hooks de autenticación con Firebase
+import { useAuth, useProfile, useRecords, useMeals } from './hooks/useAuthData';
 
 export default function App() {
-    const { userId, isAuthReady } = useAuth();
+    const { userId, isAuthReady, loading, isAuthenticated, user, signOut } = useAuth();
     const { profile, isLoading: isProfileLoading, saveProfile } = useProfile(userId);
     const { records, addRecord } = useRecords(userId);
     const { meals, addMeal } = useMeals(userId);
@@ -21,14 +22,27 @@ export default function App() {
         setSelectedRecord(null);
     };
 
-    if (isProfileLoading || !isAuthReady) {
+    // Mostrar spinner mientras carga la autenticación
+    if (loading || !isAuthReady) {
         return <Spinner />;
     }
 
+    // Mostrar pantalla de login si no está autenticado
+    if (!isAuthenticated) {
+        return <AuthScreen />;
+    }
+
+    // Mostrar spinner mientras carga el perfil
+    if (isProfileLoading) {
+        return <Spinner />;
+    }
+
+    // Mostrar onboarding si no tiene perfil
     if (!profile) {
         return <OnboardingScreen onSaveProfile={saveProfile} />;
     }
 
+    // Mostrar dashboard principal
     return (
         <>
             <Dashboard 
@@ -38,6 +52,9 @@ export default function App() {
                 onAddRecord={addRecord}
                 onAddMeal={addMeal}
                 onRecordSelect={handleSelectRecord}
+                onSaveProfile={saveProfile}
+                user={user}
+                onSignOut={signOut}
             />
             <RecordModal 
                 record={selectedRecord}

@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { Droplet, Plus, History, BarChart3, Utensils, Zap } from 'lucide-react';
+import { Droplet, Plus, History, BarChart3, Utensils, Zap, Settings } from 'lucide-react';
 import { AddRecordForm } from '../components/AddRecordForm';
 import { RecordListItem } from '../components/RecordListItem';
 import { AnalyticsView } from '../components/AnalyticsView';
 import { FoodRegistrationForm } from '../components/FoodRegistrationForm';
 import { MealHistoryView } from '../components/MealHistoryView';
 import { FoodGlucoseCorrelationView } from '../components/FoodGlucoseCorrelationView';
+import { FirebaseStatus } from '../components/FirebaseStatus';
+import { UserMenu } from '../components/UserMenu';
+import { SettingsView } from '../components/SettingsView';
 
-export const Dashboard = ({ profile, records, meals, onAddRecord, onAddMeal, onRecordSelect }) => {
+export const Dashboard = ({ profile, records, meals, onAddRecord, onAddMeal, onRecordSelect, onSaveProfile, user, onSignOut }) => {
     const [activeTab, setActiveTab] = useState('registro');
 
     const tabs = [
@@ -15,7 +18,8 @@ export const Dashboard = ({ profile, records, meals, onAddRecord, onAddMeal, onR
         { id: 'historial', label: 'Historial', icon: History },
         { id: 'comidas', label: 'Comidas', icon: Utensils },
         { id: 'analisis', label: 'Análisis', icon: BarChart3 },
-        { id: 'correlaciones', label: 'Correlaciones', icon: Zap }
+        { id: 'correlaciones', label: 'Correlaciones', icon: Zap },
+        { id: 'configuracion', label: 'Configuración', icon: Settings }
     ];
 
     return (
@@ -29,6 +33,10 @@ export const Dashboard = ({ profile, records, meals, onAddRecord, onAddMeal, onR
                                 <h1 className="text-lg font-bold text-gray-900 leading-tight">{profile.name}</h1>
                                 <p className="text-xs text-gray-500">{profile.diabetesType}</p>
                             </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                            <FirebaseStatus />
+                            <UserMenu user={user} onSignOut={onSignOut} />
                         </div>
                     </div>
 
@@ -228,6 +236,17 @@ export const Dashboard = ({ profile, records, meals, onAddRecord, onAddMeal, onR
                             </div>
                         )}
                     </div>
+                )}
+
+                {activeTab === 'configuracion' && (
+                    <SettingsView
+                        profile={profile}
+                        onSaveProfile={onSaveProfile}
+                        user={user}
+                        onSignOut={onSignOut}
+                        records={records}
+                        meals={meals}
+                    />
                 )}
             </main>
         </div>
